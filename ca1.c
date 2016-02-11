@@ -7,7 +7,7 @@
 #include <sys/msg.h>
 
 
-int num_apples = 50;    // Number of Apples to Process, to shorten the test
+int NUM_APPLES = 50;    // Number of Apples to Process, to shorten the test
 int TIME2ACT = 5;       // Time to Act between taking photo and discarding in seconds
 
 struct photo_msgbuf {
@@ -57,6 +57,7 @@ pthread_t manager2;
 pthread_t manager3;
 
 void *manage_photo_taking(void *p) {
+    int num_apples = NUM_APPLES;
     while (more_apples() && num_apples > 0) {
         
         // wait til you can take the photo
@@ -73,13 +74,15 @@ void *manage_photo_taking(void *p) {
         msgsnd(PHOTO_QID, &mbuf, sizeof(struct photo_msgbuf), IPC_NOWAIT);
 
         printf("%d Taker!\n", num_apples);
-        num_apples--;
         // Wait until apple has passed so we can get the next apple!
         usleep(750 * 1000); // 500ms 
+
+        num_apples--;
     }
 }
 
 void *manage_photo_processing(void *p) {
+    int num_apples = NUM_APPLES;
     while (more_apples() && num_apples > 0) {
 
         // pop from the photo message queue
@@ -112,6 +115,7 @@ void *manage_photo_processing(void *p) {
         else {
             printf("%d ... blocked ... \n", num_apples);
         }
+        num_apples--;
     }    
 }
 
@@ -140,6 +144,7 @@ void *manage_actuator(void *p) {
         else {
            // do nothing
         }
+        num_apples--;
     }
 }
 
