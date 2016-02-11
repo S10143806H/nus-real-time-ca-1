@@ -93,29 +93,30 @@ void *manage_photo_processing(void *p) {
 
         /* printf("%d   Processor!    %f \n", num_apples, time_elapsed); */
         // we still have time to act and process
+        QUALITY quality;
         if (time_elapsed < TIME2ACT) {
             // send the photo to the Image Processing Unit
-            QUALITY quality = process_photo(mbuf.mdata.photo);
-
-            // push to quality message queue
-            struct quality_msgbuf mbuf_quality = {
-                QUALITY_TYPE,
-                {quality, mbuf.mdata.time_start}
-            };
-            msgsnd(QUALITY_QID, &mbuf_quality, sizeof(struct quality_msgbuf), IPC_NOWAIT);
-            if (quality == GOOD) {
-                printf("%d   Detected: GOOD\n", num_apples);
-            }
-            else if (quality == BAD) {
-                printf("%d   Detected: BAD\n", num_apples);
-            }
-            else {
-                printf("%d   Detected: UNKNOWN\n", num_apples);
-            }
+            quality = process_photo(mbuf.mdata.photo);
         }
         else {
-            printf("%d   ||| blocked ||| \n", num_apples);
+            quality = UNKNOWN;
         }
+        // push the quality to the message queue
+        struct quality_msgbuf mbuf_quality = {
+            QUALITY_TYPE,
+            {quality, mbuf.mdata.time_start}
+        };
+        msgsnd(QUALITY_QID, &mbuf_quality, sizeof(struct quality_msgbuf), IPC_NOWAIT);
+        if (quality == GOOD) {
+            printf("%d   Detected: GOOD\n", num_apples);
+        }
+        else if (quality == BAD) {
+            printf("%d   Detected: BAD\n", num_apples);
+        }
+        else {
+            printf("%d   Detected: UNKNOWN\n", num_apples);
+        }
+
         num_apples--;
     }
     return; 
@@ -133,16 +134,22 @@ void *manage_actuator(void *p) {
         /* printf("%d      Actuator! %f \n", num_apples, time_elapsed); */
 
         if (mbuf.mdata.quality == BAD && time_elapsed <= 5) {
-            printf("%d      Discard BAD\n", num_apples);
-            double time_to_wait = 5 - get_time_elapsed(mbuf.mdata.time_start);
-            usleep(time_to_wait * 1000 * 1000);
-            discard_apple();
+            double time_to_wait = 5.0 - get_time_elapsed(mbuf.mdata.time_start);
+            printf("        %f\n", time_to_wait);
+            if (time_to_wait > 0) {
+                usleep(time_to_wait * 1000 * 1000);
+                discard_apple();
+                printf("%d      Discard BAD\n", num_apples);
+            }
         }
         else if (mbuf.mdata.quality == UNKNOWN) {
-            printf("%d      Discard UNKNOWN\n", num_apples);
-            double time_to_wait = 5 - get_time_elapsed(mbuf.mdata.time_start);
-            usleep(time_to_wait * 1000 * 1000);
-            discard_apple();
+            double time_to_wait = 5.0 - get_time_elapsed(mbuf.mdata.time_start);
+            printf("%f", time_to_wait);
+            if (time_to_wait > 0) {
+                usleep(time_to_wait * 1000 * 1000);
+                discard_apple();
+                printf("%d      Discard UNKNOWN\n", num_apples);
+            }
         }
         else {
            // do nothing
