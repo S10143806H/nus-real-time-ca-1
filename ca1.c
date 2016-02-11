@@ -58,8 +58,8 @@ pthread_t manager3;
 
 void *manage_photo_taking(void *p) {
     int num_apples = NUM_APPLES;
-    while (more_apples() && num_apples > 0) {
-        
+    /* while (more_apples() && num_apples > 0) { */
+    while (more_apples()) {    
         // wait til you can take the photo
         wait_until_apple_under_camera();
         
@@ -79,18 +79,19 @@ void *manage_photo_taking(void *p) {
 
         num_apples--;
     }
+    return;
 }
 
 void *manage_photo_processing(void *p) {
     int num_apples = NUM_APPLES;
-    while (more_apples() && num_apples > 0) {
-
+    /* while (more_apples() && num_apples > 0) { */
+    while (more_apples()) {
         // pop from the photo message queue
         struct photo_msgbuf mbuf; 
         msgrcv(PHOTO_QID, &mbuf, sizeof(struct photo_msgbuf), PHOTO_TYPE, 0);
         double time_elapsed = get_time_elapsed(mbuf.mdata.time_start);
 
-        printf("%d   Processor!    %f \n", num_apples, time_elapsed);
+        /* printf("%d   Processor!    %f \n", num_apples, time_elapsed); */
         // we still have time to act and process
         if (time_elapsed < TIME2ACT) {
             // send the photo to the Image Processing Unit
@@ -103,49 +104,53 @@ void *manage_photo_processing(void *p) {
             };
             msgsnd(QUALITY_QID, &mbuf_quality, sizeof(struct quality_msgbuf), IPC_NOWAIT);
             if (quality == GOOD) {
-                printf("***%d Detected: GOOD\n", num_apples);
+                printf("%d   Detected: GOOD\n", num_apples);
             }
             else if (quality == BAD) {
-                printf("***%d Detected: BAD\n", num_apples);
+                printf("%d   Detected: BAD\n", num_apples);
             }
             else {
-                printf("***%d Detected: UNKNOWN\n", num_apples);
+                printf("%d   Detected: UNKNOWN\n", num_apples);
             }
         }
         else {
-            printf("%d ... blocked ... \n", num_apples);
+            printf("%d   ||| blocked ||| \n", num_apples);
         }
         num_apples--;
-    }    
+    }
+    return; 
 }
 
 void *manage_actuator(void *p) {
-    while (more_apples() && num_apples > 0) {
-        
+    int num_apples = NUM_APPLES;
+    /* while (more_apples() && num_apples > 0) { */
+    while (more_apples()) {    
         // pop from the quality message queue
         struct quality_msgbuf mbuf;
         msgrcv(QUALITY_QID, &mbuf, sizeof(struct quality_msgbuf), QUALITY_TYPE, 0);
 
         double time_elapsed = get_time_elapsed(mbuf.mdata.time_start);
-        printf("%d      Actuator! %f \n", num_apples, time_elapsed);
+        /* printf("%d      Actuator! %f \n", num_apples, time_elapsed); */
 
         if (mbuf.mdata.quality == BAD && time_elapsed <= 5) {
-            printf("Discard BAD\n");
+            printf("%d      Discard BAD\n", num_apples);
             double time_to_wait = 5 - get_time_elapsed(mbuf.mdata.time_start);
             usleep(time_to_wait * 1000 * 1000);
             discard_apple();
         }
         else if (mbuf.mdata.quality == UNKNOWN) {
-            printf("Discard UNKNOWN\n");
+            printf("%d      Discard UNKNOWN\n", num_apples);
             double time_to_wait = 5 - get_time_elapsed(mbuf.mdata.time_start);
             usleep(time_to_wait * 1000 * 1000);
             discard_apple();
         }
         else {
            // do nothing
+           printf("%d      let it go! let it go!\n", num_apples);
         }
         num_apples--;
     }
+    return;
 }
 
 int main () {
@@ -160,7 +165,7 @@ int main () {
     pthread_join(manager1, NULL);
     pthread_join(manager2, NULL);
     pthread_join(manager3, NULL);
-    
+    printf("Test Completed");    
     end_test();
     return 0;
 }
