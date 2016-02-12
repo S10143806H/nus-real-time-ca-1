@@ -59,6 +59,11 @@ void mq_init(void) {
     QUALITY_QID = msgget(QUALITY_TYPE,IPC_CREAT|0666);
 }
 
+void mq_destroy(void) {
+    msgctl(PHOTO_QID, IPC_RMID, NULL);
+    msgctl(QUALITY_QID, IPC_RMID, NULL);
+}
+
 int mq_size(int msqid) {
     struct msqid_ds buf;
     msgctl(PHOTO_QID, IPC_STAT, &buf);
@@ -136,7 +141,7 @@ void *manage_photo_processing(void *p) {
                 printf("     | not fast enough |\n"); 
             }
             num_apples--;
-        } else { printf("_______________No photos ready yet\n");}
+        }
     }
     printf("### Processor Dead\n");
 }
@@ -180,14 +185,16 @@ void *manage_actuator(void *p) {
                printf("%d      let it go! let it go!\n", num_apples);
             }
             num_apples--;
-        } else { printf("________ Nothing for the Actuator!");}
+        }
     }
     printf("### Actuator Dead\n");
 }
 
 int main () {
     start_test();
-    
+    // destroy any system message queues, in case they are left over
+    mq_destroy();
+    // then initialize again!
     mq_init();
     
     pthread_create(&manager1, NULL, manage_photo_taking, NULL);    
@@ -197,6 +204,9 @@ int main () {
     pthread_join(manager1, NULL);
     pthread_join(manager2, NULL);
     pthread_join(manager3, NULL);
+    
+    // clean up this message queue we just created.
+    mq_destroy();
     printf("Test Completed");    
     end_test();
     return 0;
