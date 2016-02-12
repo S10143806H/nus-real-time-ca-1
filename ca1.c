@@ -133,20 +133,23 @@ void *manage_actuator(void *p) {
         double time_elapsed = get_time_elapsed(mbuf.mdata.time_start);
         /* printf("%d      Actuator! %f \n", num_apples, time_elapsed); */
 
+        double time_to_wait = 5.0 - time_elapsed;
+        printf("        %f\n", time_to_wait);
+
         if (mbuf.mdata.quality == BAD && time_elapsed <= 5) {
-            double time_to_wait = 5.0 - get_time_elapsed(mbuf.mdata.time_start);
-            printf("        %f\n", time_to_wait);
             if (time_to_wait > 0) {
+                printf("        Sleeping...\n");
                 usleep(time_to_wait * 1000 * 1000);
+                printf("        Wake up...\n");
                 discard_apple();
                 printf("%d      Discard BAD\n", num_apples);
             }
         }
         else if (mbuf.mdata.quality == UNKNOWN) {
-            double time_to_wait = 5.0 - get_time_elapsed(mbuf.mdata.time_start);
-            printf("%f", time_to_wait);
             if (time_to_wait > 0) {
+                printf("        Sleeping...\n");
                 usleep(time_to_wait * 1000 * 1000);
+                printf("        Wake up...\n");
                 discard_apple();
                 printf("%d      Discard UNKNOWN\n", num_apples);
             }
