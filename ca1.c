@@ -41,7 +41,7 @@ double get_time_elapsed(time_t t0) {
 
 /* message queues */
 int PHOTO_TYPE = 1;
-int QUALITY_TYPE = 1;
+int QUALITY_TYPE = 2;
 int PHOTO_QID;
 int QUALITY_QID;
 void mq_init(void) {
@@ -74,7 +74,7 @@ void *manage_photo_taking(void *p) {
 
         printf("%d Taker!\n", num_apples);
         // Wait until apple has passed so we can get the next apple!
-        usleep(750 * 1000); // 500ms 
+        usleep(1000 * 1000); // 500ms 
 
         num_apples--;
     }
@@ -134,6 +134,7 @@ void *manage_actuator(void *p) {
         double time_elapsed = get_time_elapsed(mbuf.mdata.time_start);
         /* printf("%d      Actuator! %f \n", num_apples, time_elapsed); */
 
+        printf("        time elapsed: %f\n", time_elapsed);
         double time_to_wait = 5.0 - time_elapsed;
         printf("        %f\n", time_to_wait);
 
