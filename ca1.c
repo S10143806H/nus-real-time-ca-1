@@ -7,7 +7,7 @@
 #include <sys/msg.h>
 
 
-int NUM_APPLES = 300;    // Number of Apples to Process, to shorten the test
+int NUM_APPLES = 10;    // Number of Apples to Process, to shorten the test
 int TIME2ACT = 5;       // Time to Act between taking photo and discarding in seconds
 
 struct photo_msgbuf {
@@ -52,8 +52,7 @@ void mq_init(void) {
 
 
 /* thread managers and thread processes */
-pthread_t manager1;
-pthread_t manager2;
+pthread_t manager1; pthread_t manager2;
 pthread_t manager3;
 
 void *manage_photo_taking(void *p) {
@@ -79,7 +78,7 @@ void *manage_photo_taking(void *p) {
 
         num_apples--;
     }
-    return;
+    printf("### Taker Dead\n");
 }
 
 void *manage_photo_processing(void *p) {
@@ -88,13 +87,15 @@ void *manage_photo_processing(void *p) {
     /* while (more_apples()) { */
         // pop from the photo message queue
         struct photo_msgbuf mbuf; 
+        printf("Waiting for receive\n");
         msgrcv(PHOTO_QID, &mbuf, sizeof(struct photo_msgbuf), PHOTO_TYPE, 0);
+        printf("Received!\n");
         double time_elapsed = get_time_elapsed(mbuf.mdata.time_start);
 
         /* printf("%d   Processor!    %f \n", num_apples, time_elapsed); */
         // we still have time to act and process
         QUALITY quality;
-        if (time_elapsed < TIME2ACT) {
+        if (time_elapsed <= TIME2ACT) {
             // send the photo to the Image Processing Unit
             quality = process_photo(mbuf.mdata.photo);
             // push the quality to the message queue
@@ -119,7 +120,7 @@ void *manage_photo_processing(void *p) {
         }
         num_apples--;
     }
-    return; 
+    printf("### Processor Dead\n");
 }
 
 void *manage_actuator(void *p) {
@@ -137,7 +138,7 @@ void *manage_actuator(void *p) {
         printf("        %f\n", time_to_wait);
 
         if (mbuf.mdata.quality == BAD && time_elapsed <= 5) {
-            if (time_to_wait > 0) {
+            if (time_to_wait >= 0) {
                 printf("        Sleeping...\n");
                 usleep(time_to_wait * 1000 * 1000);
                 printf("        Wake up...\n");
@@ -146,7 +147,7 @@ void *manage_actuator(void *p) {
             }
         }
         else if (mbuf.mdata.quality == UNKNOWN) {
-            if (time_to_wait > 0) {
+            if (time_to_wait >= 0) {
                 printf("        Sleeping...\n");
                 usleep(time_to_wait * 1000 * 1000);
                 printf("        Wake up...\n");
@@ -160,7 +161,7 @@ void *manage_actuator(void *p) {
         }
         num_apples--;
     }
-    return;
+    printf("### Actuator Dead\n");
 }
 
 int main () {
