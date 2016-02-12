@@ -3,6 +3,7 @@
 #include <time.h>
 #include <pthread.h>
 
+#include <sys/time.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
@@ -27,17 +28,32 @@ struct quality_msgbuf {
 };
 
 /* timing helpers */
-time_t get_time_now() {
-    time_t now;
-    now = time(&now);
+struct timeval get_time_now() {
+    struct timeval now;
+    gettimeofday(&now, NULL);
     return now;
 }
 
-double get_time_elapsed(time_t t0) {
-    time_t now = get_time_now();
-    double time_elapsed = difftime(now, t0);
-    return time_elapsed;
+long timevaldiff(struct timeval *starttime, struct timeval *finishtime)
+{
+    long msec;
+    msec=(finishtime->tv_sec-starttime->tv_sec)*1000;
+    msec+=(finishtime->tv_usec-starttime->tv_usec)/1000;
+    return msec;
 }
+
+double get_time_elapsed_msec(struct timeval *t0_p) {
+    struct timeval now = get_time_now();
+    double time_elapsed_msec = timevaldiff(&now, t0_p);
+    return time_elapsed_msec;
+}
+
+struct timespec {
+   time_t tv_sec;        /* seconds */
+   long   tv_nsec;       /* nanoseconds */
+};
+
+
 
 /* message queues */
 int PHOTO_TYPE = 1;
@@ -136,22 +152,17 @@ void *manage_actuator(void *p) {
         double time_to_wait = 5.0 - time_elapsed;
         printf("        %f\n", time_to_wait);
 
-        if (mbuf.mdata.quality == BAD && time_elapsed <= 5) {
+        if ((mbuf.mdata.quality == BAD && time_elapsed <= 5) || (mbuf.mdata.quality == UNKNOWN)) {
             if (time_to_wait > 0) {
                 printf("        Sleeping...\n");
-                usleep(time_to_wait * 1000 * 1000);
-                printf("        Wake up...\n");
-                discard_apple();
-                printf("%d      Discard BAD\n", num_apples);
-            }
-        }
-        else if (mbuf.mdata.quality == UNKNOWN) {
-            if (time_to_wait > 0) {
-                printf("        Sleeping...\n");
-                usleep(time_to_wait * 1000 * 1000);
-                printf("        Wake up...\n");
-                discard_apple();
-                printf("%d      Discard UNKNOWN\n", num_apples);
+                if (usleep(time_to_wait * 1000 * 1000) > 0) {
+                    printf("        Wake up...\n");
+                    discard_apple();
+                    printf("%d      Discard\n", num_apples);
+                } 
+                else {
+                    printf("        usleep errors\n");
+                }
             }
         }
         else {
