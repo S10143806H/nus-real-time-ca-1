@@ -1,179 +1,190 @@
 Waiting for receive
 Received!
+        time elapsed: 511715.000000
+        -506715.000000
+25      let it go! let it go!
 25 Taker!
 25   Detected: GOOD
-        time elapsed: 250.000000
-        4750.000000
-25      let it go! let it go!
 Waiting for receive
 Received!
+        time elapsed: 900.000000
+        4100.000000
 24 Taker!
-24   Detected: GOOD
-        time elapsed: 130.000000
-        4870.000000
 24      let it go! let it go!
-Waiting for receive
-Received!
 23 Taker!
-23   Detected: GOOD
-        time elapsed: 941.000000
-        4059.000000
-23      let it go! let it go!
+24   Detected: GOOD
 Waiting for receive
 Received!
+        time elapsed: 1040.000000
+        3960.000000
+23      let it go! let it go!
 22 Taker!
-22   Detected: GOOD
-        time elapsed: 571.000000
-        4429.000000
+23   Detected: GOOD
+Waiting for receive
+Received!
+        time elapsed: 1335.000000
+        3665.000000
 22      let it go! let it go!
+22   Detected: GOOD
 Waiting for receive
 Received!
 21 Taker!
+        time elapsed: 1000.000000
+        4000.000000
+21      let it go! let it go!
 20 Taker!
 21   Detected: GOOD
 Waiting for receive
+        time elapsed: 1248.000000
+        3752.000000
+20      let it go! let it go!
 Received!
-        time elapsed: 1734.000000
-        3266.000000
-21      let it go! let it go!
 20   Detected: GOOD
 Waiting for receive
 Received!
         time elapsed: 1000.000000
         4000.000000
-20      let it go! let it go!
+19      let it go! let it go!
 19 Taker!
+18 Taker!
+17 Taker!
+16 Taker!
 19   Detected: GOOD
 Waiting for receive
 Received!
-        time elapsed: 1000.000000
-        4000.000000
-19      let it go! let it go!
-18 Taker!
+        time elapsed: 3041.000000
+        1959.000000
+18      let it go! let it go!
+15 Taker!
 18   Detected: GOOD
 Waiting for receive
 Received!
-        time elapsed: 1000.000000
-        4000.000000
-18      let it go! let it go!
-17 Taker!
+        time elapsed: 3413.000000
+        1587.000000
+17      let it go! let it go!
 17   Detected: GOOD
 Waiting for receive
 Received!
-16 Taker!
-        time elapsed: 1000.000000
-        4000.000000
-17      let it go! let it go!
-15 Taker!
+        time elapsed: 2757.000000
+        2243.000000
+16      let it go! let it go!
+14 Taker!
 16   Detected: GOOD
 Waiting for receive
 Received!
-        time elapsed: 1427.000000
-        3573.000000
-16      let it go! let it go!
+        time elapsed: 2987.000000
+        2013.000000
+15      let it go! let it go!
+13 Taker!
 15   Detected: GOOD
 Waiting for receive
 Received!
-        time elapsed: 1000.000000
-        4000.000000
-15      let it go! let it go!
-14 Taker!
+        time elapsed: 2558.000000
+        2442.000000
+14      let it go! let it go!
+12 Taker!
 14   Detected: GOOD
 Waiting for receive
 Received!
-13 Taker!
-        time elapsed: 1000.000000
-        4000.000000
-14      let it go! let it go!
-13   Detected: BAD
+        time elapsed: 2056.000000
+        2944.000000
+13      let it go! let it go!
+11 Taker!
+13   Detected: GOOD
 Waiting for receive
 Received!
-12 Taker!
-        time elapsed: 1000.000000
-        4000.000000
-        Sleeping...
-11 Taker!
+        time elapsed: 2517.000000
+        2483.000000
+12      let it go! let it go!
+10 Taker!
+9 Taker!
+8 Taker!
 12   Detected: GOOD
 Waiting for receive
 Received!
-10 Taker!
-9 Taker!
-11   Detected: GOOD
+        time elapsed: 4588.000000
+        412.000000
+11      let it go! let it go!
+11   Detected: BAD
 Waiting for receive
 Received!
+        time elapsed: 3664.000000
+        1336.000000
+        Sleeping...
+7 Taker!
+        Wake up...
+10      Discard BAD
+6 Taker!
 10   Detected: GOOD
 Waiting for receive
 Received!
-8 Taker!
-        Wake up...
-13      Discard BAD
-        time elapsed: 4000.000000
-        1000.000000
-12      let it go! let it go!
-        time elapsed: 3000.000000
-        2000.000000
-11      let it go! let it go!
-        time elapsed: 2000.000000
-        3000.000000
-10      let it go! let it go!
+        time elapsed: 4027.000000
+        973.000000
+9      let it go! let it go!
 9   Detected: GOOD
 Waiting for receive
 Received!
-        time elapsed: 1719.000000
-        3281.000000
-9      let it go! let it go!
-7 Taker!
+        time elapsed: 3733.000000
+        1267.000000
+8      let it go! let it go!
+5 Taker!
 8   Detected: GOOD
 Waiting for receive
 Received!
-        time elapsed: 1332.000000
-        3668.000000
-8      let it go! let it go!
-6 Taker!
-5 Taker!
-4 Taker!
-7   Detected: GOOD
-        time elapsed: 3242.000000
-        1758.000000
+        time elapsed: 3728.000000
+        1272.000000
 7      let it go! let it go!
-Waiting for receive
-Received!
+4 Taker!
 3 Taker!
-6   Detected: BAD
+7   Detected: GOOD
 Waiting for receive
 Received!
-        time elapsed: 3768.000000
-        1232.000000
-        Sleeping...
+        time elapsed: 4580.000000
+        420.000000
+6      let it go! let it go!
+6   Detected: GOOD
+Waiting for receive
+Received!
+        time elapsed: 3839.000000
+        1161.000000
+5      let it go! let it go!
+2 Taker!
+1 Taker!
 5   Detected: GOOD
 Waiting for receive
 Received!
-2 Taker!
-1 Taker!
-        Wake up...
-6      Discard BAD
-        time elapsed: 4000.000000
-        1000.000000
-5      let it go! let it go!
-### Taker Dead
+        time elapsed: 4103.000000
+        897.000000
+4      let it go! let it go!
 4   Detected: GOOD
+        time elapsed: 3360.000000
+        1640.000000
+3      let it go! let it go!
 Waiting for receive
 Received!
-        time elapsed: 4557.000000
-        443.000000
-4      let it go! let it go!
+### Taker Dead
 3   Detected: GOOD
 Waiting for receive
+        time elapsed: 3405.000000
+        1595.000000
+2      let it go! let it go!
 Received!
-        time elapsed: 3673.000000
-        1327.000000
-3      let it go! let it go!
 2   Detected: GOOD
 Waiting for receive
+        time elapsed: 3896.000000
+        1104.000000
+1      let it go! let it go!
+### Actuator Dead
 Received!
-        time elapsed: 2805.000000
-        2195.000000
-2      let it go! let it go!
-1   Detected: BAD
+1   Detected: GOOD
 ### Processor Dead
+Test Completed-- TEST RESULTS --
+Elapsed time (minutes): 0.49
+Number of apples: 29
+Number of bad apples discarded: 1
+Number of good apples discarded: 0
+Number of bad apples packed: 0
+Number of apples spoilt due to bad apples: 0
+Revenue from sale of good apples: $28
+Revenue loss due to system shortcomings: $0 (0%)
 

@@ -95,7 +95,7 @@ void *manage_photo_taking(void *p) {
 
         printf("%d Taker!\n", num_apples);
         // Wait until apple has passed so we can get the next apple!
-        usleep(500 * 1000); // 500ms 
+        usleep(750 * 1000);
 
         num_apples--;
     }
