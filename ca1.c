@@ -44,7 +44,7 @@ double timevaldiff(struct timeval *starttime, struct timeval *finishtime)
 
 double get_time_elapsed_msec(struct timeval *t0_p) {
     struct timeval now = get_time_now();
-    double time_elapsed_msec = timevaldiff(&now, t0_p);
+    double time_elapsed_msec = timevaldiff(t0_p, &now);
     return time_elapsed_msec;
 }
 
@@ -96,9 +96,9 @@ void *manage_photo_processing(void *p) {
     /* while (more_apples()) { */
         // pop from the photo message queue
         struct photo_msgbuf mbuf; 
-        printf("Waiting for receive\n");
+        printf("Waiting for photo receive\n");
         msgrcv(PHOTO_QID, &mbuf, sizeof(struct photo_msgbuf), PHOTO_TYPE, 0);
-        printf("Received!\n");
+        printf("Received photo!\n");
         double time_elapsed_msec = get_time_elapsed_msec(&mbuf.mdata.time_start);
 
         // we still have time to act and process
@@ -124,7 +124,7 @@ void *manage_photo_processing(void *p) {
 
         }
         else {
-            printf("     | not fast enough |"); 
+            printf("     | not fast enough |\n"); 
         }
         num_apples--;
     }
@@ -142,24 +142,27 @@ void *manage_actuator(void *p) {
         double time_elapsed_msec = get_time_elapsed_msec(&mbuf.mdata.time_start);
 
         printf("        time elapsed: %f\n", time_elapsed_msec);
-        // FIXME: if time_elapsed_msec is negative, time_to_wait_msec becomes positive (not good)
-        double time_to_wait_msec = TIME2ACT*1000 - time_elapsed_msec;
-        printf("        %f\n", time_to_wait_msec);
+        
+        // if time_elapsed_msec is negative, there was some weird shit with msg queue and we should ignore it
+        if (time_elapsed_msec >= 0) {
+            double time_to_wait_msec = TIME2ACT*1000 - time_elapsed_msec;
+            printf("        %f\n", time_to_wait_msec);
 
-        if ((mbuf.mdata.quality == BAD && time_elapsed_msec <= TIME2ACT*1000) || mbuf.mdata.quality == UNKNOWN) {
-            if (time_to_wait_msec >= 0) {
-                printf("        Sleeping %f msecs...\n", time_to_wait_msec);
-                usleep(time_to_wait_msec * 1000);
-                printf("        Wake up...\n");
-                discard_apple();
-                printf("%d      Discard!\n", num_apples);
+            if ((mbuf.mdata.quality == BAD && time_elapsed_msec <= TIME2ACT*1000) || mbuf.mdata.quality == UNKNOWN) {
+                if (time_to_wait_msec >= 0) {
+                    printf("        Sleeping %f msecs...\n", time_to_wait_msec);
+                    usleep(time_to_wait_msec * 1000);
+                    printf("        Wake up...\n");
+                    discard_apple();
+                    printf("%d      Discard!\n", num_apples);
+                }
             }
+            else {
+               // do nothing
+               printf("%d      let it go! let it go!\n", num_apples);
+            }
+            num_apples--;
         }
-        else {
-           // do nothing
-           printf("%d      let it go! let it go!\n", num_apples);
-        }
-        num_apples--;
     }
     printf("### Actuator Dead\n");
 }
