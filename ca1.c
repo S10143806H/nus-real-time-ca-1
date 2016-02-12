@@ -7,7 +7,7 @@
 #include <sys/msg.h>
 
 
-int NUM_APPLES = 50;    // Number of Apples to Process, to shorten the test
+int NUM_APPLES = 300;    // Number of Apples to Process, to shorten the test
 int TIME2ACT = 5;       // Time to Act between taking photo and discarding in seconds
 
 struct photo_msgbuf {
@@ -58,8 +58,8 @@ pthread_t manager3;
 
 void *manage_photo_taking(void *p) {
     int num_apples = NUM_APPLES;
-    /* while (more_apples() && num_apples > 0) { */
-    while (more_apples()) {    
+    while (more_apples() && num_apples > 0) {
+    /* while (more_apples()) { */    
         // wait til you can take the photo
         wait_until_apple_under_camera();
         
@@ -84,8 +84,8 @@ void *manage_photo_taking(void *p) {
 
 void *manage_photo_processing(void *p) {
     int num_apples = NUM_APPLES;
-    /* while (more_apples() && num_apples > 0) { */
-    while (more_apples()) {
+    while (more_apples() && num_apples > 0) {
+    /* while (more_apples()) { */
         // pop from the photo message queue
         struct photo_msgbuf mbuf; 
         msgrcv(PHOTO_QID, &mbuf, sizeof(struct photo_msgbuf), PHOTO_TYPE, 0);
@@ -124,8 +124,8 @@ void *manage_photo_processing(void *p) {
 
 void *manage_actuator(void *p) {
     int num_apples = NUM_APPLES;
-    /* while (more_apples() && num_apples > 0) { */
-    while (more_apples()) {    
+    while (more_apples() && num_apples > 0) {
+    /* while (more_apples()) { */    
         // pop from the quality message queue
         struct quality_msgbuf mbuf;
         msgrcv(QUALITY_QID, &mbuf, sizeof(struct quality_msgbuf), QUALITY_TYPE, 0);

@@ -1,0 +1,10 @@
+-- TEST RESULTS --
+Elapsed time (minutes): 9.31
+Number of apples: 300
+Number of bad apples discarded: 0
+Number of good apples discarded: 7
+Number of bad apples packed: 28
+Number of apples spoilt due to bad apples: 236
+Revenue from sale of good apples: $29
+Revenue loss due to system shortcomings: $243 (89%)
+
