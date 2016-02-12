@@ -2,13 +2,14 @@
 #include <stdio.h>
 #include <time.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #include <sys/time.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
 
-int NUM_APPLES = 10;    // Number of Apples to Process, to shorten the test
+int NUM_APPLES = 25;    // Number of Apples to Process, to shorten the test
 int TIME2ACT = 5 * 1000;// Time to Act between taking photo and discarding in milliseconds
 
 struct photo_msgbuf {
@@ -160,12 +161,13 @@ void *manage_actuator(void *p) {
 
             printf("        time elapsed: %f\n", time_elapsed);
             double time_to_wait = TIME2ACT - time_elapsed;
+            useconds_t time_to_wait_useconds = time_to_wait * 1000;
             printf("        %f\n", time_to_wait);
 
             if (mbuf.mdata.quality == BAD && time_elapsed <= TIME2ACT) {
                 if (time_to_wait >= 0) {
                     printf("        Sleeping...\n");
-                    usleep(time_to_wait *  1000);
+                    usleep(time_to_wait_useconds);
                     printf("        Wake up...\n");
                     discard_apple();
                     printf("%d      Discard BAD\n", num_apples);
@@ -174,7 +176,7 @@ void *manage_actuator(void *p) {
             else if (mbuf.mdata.quality == UNKNOWN) {
                 if (time_to_wait >= 0) {
                     printf("        Sleeping...\n");
-                    usleep(time_to_wait * 1000);
+                    usleep(time_to_wait_useconds);
                     printf("        Wake up...\n");
                     discard_apple();
                     printf("%d      Discard UNKNOWN\n", num_apples);
