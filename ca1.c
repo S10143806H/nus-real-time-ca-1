@@ -97,26 +97,26 @@ void *manage_photo_processing(void *p) {
         if (time_elapsed < TIME2ACT) {
             // send the photo to the Image Processing Unit
             quality = process_photo(mbuf.mdata.photo);
-        }
-        else {
-            quality = UNKNOWN;
-        }
-        // push the quality to the message queue
-        struct quality_msgbuf mbuf_quality = {
-            QUALITY_TYPE,
-            {quality, mbuf.mdata.time_start}
-        };
-        msgsnd(QUALITY_QID, &mbuf_quality, sizeof(struct quality_msgbuf), IPC_NOWAIT);
-        if (quality == GOOD) {
-            printf("%d   Detected: GOOD\n", num_apples);
-        }
-        else if (quality == BAD) {
-            printf("%d   Detected: BAD\n", num_apples);
-        }
-        else {
-            printf("%d   Detected: UNKNOWN\n", num_apples);
-        }
+            // push the quality to the message queue
+            struct quality_msgbuf mbuf_quality = {
+                QUALITY_TYPE,
+                {quality, mbuf.mdata.time_start}
+            };
+            msgsnd(QUALITY_QID, &mbuf_quality, sizeof(struct quality_msgbuf), IPC_NOWAIT);
+            if (quality == GOOD) {
+                printf("%d   Detected: GOOD\n", num_apples);
+            }
+            else if (quality == BAD) {
+                printf("%d   Detected: BAD\n", num_apples);
+            }
+            else {
+                printf("%d   Detected: UNKNOWN\n", num_apples);
+            }
 
+        }
+        else {
+            printf("     | not fast enough |"); 
+        }
         num_apples--;
     }
     return; 
