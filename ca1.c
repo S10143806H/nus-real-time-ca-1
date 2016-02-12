@@ -34,9 +34,9 @@ struct timeval get_time_now() {
     return now;
 }
 
-long timevaldiff(struct timeval *starttime, struct timeval *finishtime)
+double timevaldiff(struct timeval *starttime, struct timeval *finishtime)
 {
-    long msec;
+    double msec;
     msec=(finishtime->tv_sec-starttime->tv_sec)*1000;
     msec+=(finishtime->tv_usec-starttime->tv_usec)/1000;
     return msec;
@@ -46,19 +46,6 @@ double get_time_elapsed_msec(struct timeval *t0_p) {
     struct timeval now = get_time_now();
     double time_elapsed_msec = timevaldiff(&now, t0_p);
     return time_elapsed_msec;
-}
-
-struct timespec {
-    time_t tv_sec;        /* seconds */
-    long   tv_nsec;       /* nanoseconds */
-};
-
-// TODO:  if I really want to continue with this...
-// https://blog.habets.se/2010/09/gettimeofday-should-never-be-used-to-measure-time
-struct timeval timespec2timeval(struct timespec ts*) {
-    struct timeval *tv;
-    memcpy(ts, tv->)
-    tv->
 }
 
 /* message queues */
@@ -85,7 +72,7 @@ void *manage_photo_taking(void *p) {
         wait_until_apple_under_camera();
         
         // timeStart
-        time_t time_start = get_time_now();
+        struct timeval time_start = get_time_now();
         
         // take the photo
         PHOTO photo = take_photo();
@@ -112,12 +99,11 @@ void *manage_photo_processing(void *p) {
         printf("Waiting for receive\n");
         msgrcv(PHOTO_QID, &mbuf, sizeof(struct photo_msgbuf), PHOTO_TYPE, 0);
         printf("Received!\n");
-        double time_elapsed = get_time_elapsed(mbuf.mdata.time_start);
+        double time_elapsed_msec = get_time_elapsed_msec(&mbuf.mdata.time_start);
 
-        /* printf("%d   Processor!    %f \n", num_apples, time_elapsed); */
         // we still have time to act and process
         QUALITY quality;
-        if (time_elapsed <= TIME2ACT) {
+        if (time_elapsed_msec <= TIME2ACT*1000) {
             // send the photo to the Image Processing Unit
             quality = process_photo(mbuf.mdata.photo);
             // push the quality to the message queue
@@ -153,18 +139,17 @@ void *manage_actuator(void *p) {
         struct quality_msgbuf mbuf;
         msgrcv(QUALITY_QID, &mbuf, sizeof(struct quality_msgbuf), QUALITY_TYPE, 0);
 
-        double time_elapsed = get_time_elapsed(mbuf.mdata.time_start);
-        /* printf("%d      Actuator! %f \n", num_apples, time_elapsed); */
+        double time_elapsed_msec = get_time_elapsed_msec(&mbuf.mdata.time_start);
 
-        printf("        time elapsed: %f\n", time_elapsed);
-        double time_to_wait = 5.0 - time_elapsed;
-        printf("        %f\n", time_to_wait);
+        printf("        time elapsed: %f\n", time_elapsed_msec);
+        // FIXME: if time_elapsed_msec is negative, time_to_wait_msec becomes positive (not good)
+        double time_to_wait_msec = TIME2ACT*1000 - time_elapsed_msec;
+        printf("        %f\n", time_to_wait_msec);
 
-        if ((mbuf.mdata.quality == BAD || mbuf.mdata.quality == UNKNOWN)
-                && time_elapsed <= 5) {
-            if (time_to_wait >= 0) {
-                printf("        Sleeping %f seconds...\n", time_to_wait);
-                usleep(time_to_wait * 1000 * 1000);
+        if ((mbuf.mdata.quality == BAD && time_elapsed_msec <= TIME2ACT*1000) || mbuf.mdata.quality == UNKNOWN) {
+            if (time_to_wait_msec >= 0) {
+                printf("        Sleeping %f msecs...\n", time_to_wait_msec);
+                usleep(time_to_wait_msec * 1000);
                 printf("        Wake up...\n");
                 discard_apple();
                 printf("%d      Discard!\n", num_apples);
