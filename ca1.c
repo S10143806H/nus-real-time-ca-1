@@ -15,7 +15,7 @@ struct photo_msgbuf {
     long mtype;
     struct photo_and_time {
         PHOTO photo;
-        time_t time_start;
+        struct timeval time_start;
     } mdata;
 };
 
@@ -23,7 +23,7 @@ struct quality_msgbuf {
     long mtype;
     struct quality_and_time {
         QUALITY quality;
-        time_t time_start; 
+        struct timeval time_start; 
     } mdata; 
 };
 
@@ -49,11 +49,17 @@ double get_time_elapsed_msec(struct timeval *t0_p) {
 }
 
 struct timespec {
-   time_t tv_sec;        /* seconds */
-   long   tv_nsec;       /* nanoseconds */
+    time_t tv_sec;        /* seconds */
+    long   tv_nsec;       /* nanoseconds */
 };
 
-
+// TODO:  if I really want to continue with this...
+// https://blog.habets.se/2010/09/gettimeofday-should-never-be-used-to-measure-time
+struct timeval timespec2timeval(struct timespec ts*) {
+    struct timeval *tv;
+    memcpy(ts, tv->)
+    tv->
+}
 
 /* message queues */
 int PHOTO_TYPE = 1;
