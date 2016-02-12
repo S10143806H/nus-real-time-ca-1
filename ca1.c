@@ -8,7 +8,7 @@
 #include <sys/msg.h>
 
 
-int NUM_APPLES = 50;    // Number of Apples to Process, to shorten the test
+int NUM_APPLES = 25;    // Number of Apples to Process, to shorten the test
 int TIME2ACT = 5;       // Time to Act between taking photo and discarding in seconds
 
 struct photo_msgbuf {
@@ -57,7 +57,7 @@ struct timespec {
 
 /* message queues */
 int PHOTO_TYPE = 1;
-int QUALITY_TYPE = 1;
+int QUALITY_TYPE = 2;
 int PHOTO_QID;
 int QUALITY_QID;
 void mq_init(void) {
@@ -68,14 +68,13 @@ void mq_init(void) {
 
 
 /* thread managers and thread processes */
-pthread_t manager1;
-pthread_t manager2;
+pthread_t manager1; pthread_t manager2;
 pthread_t manager3;
 
 void *manage_photo_taking(void *p) {
     int num_apples = NUM_APPLES;
-    /* while (more_apples() && num_apples > 0) { */
-    while (more_apples()) {    
+    while (more_apples() && num_apples > 0) {
+    /* while (more_apples()) { */    
         // wait til you can take the photo
         wait_until_apple_under_camera();
         
@@ -91,57 +90,59 @@ void *manage_photo_taking(void *p) {
 
         printf("%d Taker!\n", num_apples);
         // Wait until apple has passed so we can get the next apple!
-        usleep(750 * 1000); // 500ms 
+        usleep(500 * 1000); // 500ms 
 
         num_apples--;
     }
-    return;
+    printf("### Taker Dead\n");
 }
 
 void *manage_photo_processing(void *p) {
     int num_apples = NUM_APPLES;
-    /* while (more_apples() && num_apples > 0) { */
-    while (more_apples()) {
+    while (more_apples() && num_apples > 0) {
+    /* while (more_apples()) { */
         // pop from the photo message queue
         struct photo_msgbuf mbuf; 
+        printf("Waiting for receive\n");
         msgrcv(PHOTO_QID, &mbuf, sizeof(struct photo_msgbuf), PHOTO_TYPE, 0);
+        printf("Received!\n");
         double time_elapsed = get_time_elapsed(mbuf.mdata.time_start);
 
         /* printf("%d   Processor!    %f \n", num_apples, time_elapsed); */
         // we still have time to act and process
         QUALITY quality;
-        if (time_elapsed < TIME2ACT) {
+        if (time_elapsed <= TIME2ACT) {
             // send the photo to the Image Processing Unit
             quality = process_photo(mbuf.mdata.photo);
-        }
-        else {
-            quality = UNKNOWN;
-        }
-        // push the quality to the message queue
-        struct quality_msgbuf mbuf_quality = {
-            QUALITY_TYPE,
-            {quality, mbuf.mdata.time_start}
-        };
-        msgsnd(QUALITY_QID, &mbuf_quality, sizeof(struct quality_msgbuf), IPC_NOWAIT);
-        if (quality == GOOD) {
-            printf("%d   Detected: GOOD\n", num_apples);
-        }
-        else if (quality == BAD) {
-            printf("%d   Detected: BAD\n", num_apples);
-        }
-        else {
-            printf("%d   Detected: UNKNOWN\n", num_apples);
-        }
+            // push the quality to the message queue
+            struct quality_msgbuf mbuf_quality = {
+                QUALITY_TYPE,
+                {quality, mbuf.mdata.time_start}
+            };
+            msgsnd(QUALITY_QID, &mbuf_quality, sizeof(struct quality_msgbuf), IPC_NOWAIT);
+            if (quality == GOOD) {
+                printf("%d   Detected: GOOD\n", num_apples);
+            }
+            else if (quality == BAD) {
+                printf("%d   Detected: BAD\n", num_apples);
+            }
+            else {
+                printf("%d   Detected: UNKNOWN\n", num_apples);
+            }
 
+        }
+        else {
+            printf("     | not fast enough |"); 
+        }
         num_apples--;
     }
-    return; 
+    printf("### Processor Dead\n");
 }
 
 void *manage_actuator(void *p) {
     int num_apples = NUM_APPLES;
-    /* while (more_apples() && num_apples > 0) { */
-    while (more_apples()) {    
+    while (more_apples() && num_apples > 0) {
+    /* while (more_apples()) { */    
         // pop from the quality message queue
         struct quality_msgbuf mbuf;
         msgrcv(QUALITY_QID, &mbuf, sizeof(struct quality_msgbuf), QUALITY_TYPE, 0);
@@ -149,20 +150,18 @@ void *manage_actuator(void *p) {
         double time_elapsed = get_time_elapsed(mbuf.mdata.time_start);
         /* printf("%d      Actuator! %f \n", num_apples, time_elapsed); */
 
+        printf("        time elapsed: %f\n", time_elapsed);
         double time_to_wait = 5.0 - time_elapsed;
         printf("        %f\n", time_to_wait);
 
-        if ((mbuf.mdata.quality == BAD && time_elapsed <= 5) || (mbuf.mdata.quality == UNKNOWN)) {
-            if (time_to_wait > 0) {
-                printf("        Sleeping...\n");
-                if (usleep(time_to_wait * 1000 * 1000) > 0) {
-                    printf("        Wake up...\n");
-                    discard_apple();
-                    printf("%d      Discard\n", num_apples);
-                } 
-                else {
-                    printf("        usleep errors\n");
-                }
+        if ((mbuf.mdata.quality == BAD || mbuf.mdata.quality == UNKNOWN)
+                && time_elapsed <= 5) {
+            if (time_to_wait >= 0) {
+                printf("        Sleeping %f seconds...\n", time_to_wait);
+                usleep(time_to_wait * 1000 * 1000);
+                printf("        Wake up...\n");
+                discard_apple();
+                printf("%d      Discard!\n", num_apples);
             }
         }
         else {
@@ -171,7 +170,7 @@ void *manage_actuator(void *p) {
         }
         num_apples--;
     }
-    return;
+    printf("### Actuator Dead\n");
 }
 
 int main () {
