@@ -7,7 +7,7 @@
 #include <sys/msg.h>
 
 
-int NUM_APPLES = 10;    // Number of Apples to Process, to shorten the test
+int NUM_APPLES = 25;    // Number of Apples to Process, to shorten the test
 int TIME2ACT = 5;       // Time to Act between taking photo and discarding in seconds
 
 struct photo_msgbuf {
@@ -74,7 +74,7 @@ void *manage_photo_taking(void *p) {
 
         printf("%d Taker!\n", num_apples);
         // Wait until apple has passed so we can get the next apple!
-        usleep(1000 * 1000); // 500ms 
+        usleep(500 * 1000); // 500ms 
 
         num_apples--;
     }
@@ -138,22 +138,14 @@ void *manage_actuator(void *p) {
         double time_to_wait = 5.0 - time_elapsed;
         printf("        %f\n", time_to_wait);
 
-        if (mbuf.mdata.quality == BAD && time_elapsed <= 5) {
+        if ((mbuf.mdata.quality == BAD || mbuf.mdata.quality == UNKNOWN)
+                && time_elapsed <= 5) {
             if (time_to_wait >= 0) {
-                printf("        Sleeping...\n");
+                printf("        Sleeping %f seconds...\n", time_to_wait);
                 usleep(time_to_wait * 1000 * 1000);
                 printf("        Wake up...\n");
                 discard_apple();
-                printf("%d      Discard BAD\n", num_apples);
-            }
-        }
-        else if (mbuf.mdata.quality == UNKNOWN) {
-            if (time_to_wait >= 0) {
-                printf("        Sleeping...\n");
-                usleep(time_to_wait * 1000 * 1000);
-                printf("        Wake up...\n");
-                discard_apple();
-                printf("%d      Discard UNKNOWN\n", num_apples);
+                printf("%d      Discard!\n", num_apples);
             }
         }
         else {
